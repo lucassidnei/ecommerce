@@ -9,7 +9,7 @@
                         <div class="footer-social">
                             <a href="https://www.facebook.com/hcodebr" target="_blank"><i class="fa fa-facebook"></i></a>
                             <a href="https://twitter.com/hcodebr" target="_blank"><i class="fa fa-twitter"></i></a>
-                            <a href="https://www.youtube.com/channel/UCjWENuSH2gX55-y7QSZiWxA" target="_blank"><i class="fa fa-youtube"></i></a>
+                            <a href="https://www.youtube.com/watch?v=drejlvNYxrc" target="_blank"><i class="fa fa-youtube"></i></a>
                         </div>
                     </div>
                 </div>
