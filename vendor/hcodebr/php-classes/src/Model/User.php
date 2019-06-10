@@ -8,17 +8,15 @@ use \Hcode\Model;
 class User extends Model {
 	const SESSION = "User";
 
+//Função de logar
 	public static function login($login, $password){
 
 		$sql = new Sql(); 
-
 		$results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :LOGIN", array(
 			"LOGIN"=>$login
 		));
 
-		if(count($results)===0)
-
-			{
+		if(count($results)===0){
 				throw new \Exception("Usuário inexistente ou senha inválida");
 				
 			}
@@ -26,37 +24,30 @@ class User extends Model {
 			$data = $results[0];
 
 			if 
-				(password_verify($password, $data["despassword"]) === true)
-			{
+				(password_verify($password, $data["despassword"]) === true){
 				$user = new User();
-
 				$user->setData($data);
-
 				$_SESSION[User::SESSION] = $user->getValues();
-
 				return $user;
 
 
 			}
 
-				 else 
-				 {
+				 else{
 
 					throw new \Exception("Usuário inexistente ou senha inválida");
 				 }
+	} 
 
-	}
-
-
-	public static function verifyLogin($inadmin = true)
-	{
+//Verifica o login do usuario
+	public static function verifyLogin($inadmin = true){
 		if(
 
 			!isset($_SESSION[User::SESSION])
 			||
-			$_SESSION[User::SESSION]
+			!$_SESSION[User::SESSION]
 			||
-			!(int)$_SESSION[User::SESSION]["iduser"] >0
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0
 			||
 			(bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin
 		) {
@@ -67,25 +58,21 @@ class User extends Model {
 		}
 	}
 
-
-	public static function logout()
-	{
+///Função de deslogin
+	public static function logout(){
 		$_SESSION[User::SESSION] = NULL;
 	}
 
-	public static function lisAll()
-	{
+//Função para listar os Usuários
+	public static function listAll(){
 		$sql = new Sql();
-
 		return $sql->select("SELECT * FROM tb_users a INNER  JOIN tb_persons b USING(idperson) ORDER BY b.desperson");
 	}
 
-
-	public function save()
-	{
+//Função para salvar no banco de dados
+	public function save(){
 		$sql = new Sql();
-
-		$results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin", array(
+		$results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 			":desperson"=>$this->getdesperson(),
 			":deslogin"=>$this->getdeslogin(),
 			":despassword"=>$this->getdespassword(),
@@ -93,7 +80,6 @@ class User extends Model {
 			":nrphone"=>$this->getnrphone(),
 			":inadmin"=>$this->getinadmin()
 		));
-
 		$this->setData($results[0]);
 	}
 
@@ -102,21 +88,17 @@ class User extends Model {
 	{
 
 		$sql = new Sql();
-		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(ifperson) WHERE a.iduser = :iduser", array(
+		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
 			":iduser"=>$iduser
-
 		));
-
 		$this->setData($results[0]);
 	}
 
-
+//Função pra fazer update no banco de dados
 	public function update()
 	{
-
 		$sql = new Sql();
-
-		$results = $sql->select("CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin", array(
+		$results = $sql->select("CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
 			":iduser"=>$this->getiduser(),
 			":desperson"=>$this->getdesperson(),
 			":deslogin"=>$this->getdeslogin(),
@@ -125,8 +107,17 @@ class User extends Model {
 			":nrphone"=>$this->getnrphone(),
 			":inadmin"=>$this->getinadmin()
 		));
-
 	}
+
+//Função para deletar dados
+	public function delete(){
+
+		$sql = new Sql();
+		$sql->query("CALL sp_users_delete(:iduser)", array(
+			":iduser"=>$this->getiduser()
+		));
+	}
+
 }
 
 
