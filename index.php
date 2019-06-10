@@ -55,6 +55,7 @@ $app->get('/admin/logout', function(){
 
 });
 
+//Métod para listar os usuários
 $app->get("/admin/users", function(){
 
 	User::verifyLogin();
@@ -122,6 +123,34 @@ $app->post("/admin/user/:iduser", function($iduser){
 	exit;
 	});
 
+//Método para rederizar pagina de recuperação de senha
+$app->get("/admin/forgot", function(){
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+	$page->setTpl("forgot");
+
+});
+
+//Método para recuperação de senha
+$app->post("/admin/forgot", function(){
+
+	$user = User::getForgot($_POST["email"]);
+	header("Location: /admin/forgot/sent");
+	exit;
+});
+
+//Método de renderização da pagina depois drecuperação
+$app->get("/admin/forgot/sent", function(){
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+	$page->setTpl("forgot-sent");
+});
 
 
 $app->run();

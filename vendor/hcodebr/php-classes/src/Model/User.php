@@ -4,9 +4,11 @@ namespace Hcode\Model;
 
 use \Hcode\DB\Sql;
 use \Hcode\Model;
+use \Hcode\Mailer;
 
 class User extends Model {
 	const SESSION = "User";
+	const SECRET = "SidneiLucas_Secret";
 
 //Função de logar
 	public static function login($login, $password){
@@ -118,8 +120,67 @@ class User extends Model {
 		));
 	}
 
+//Função de recuperação de senha
+public static function getForgot($email, $inadmin = true){
+
+	$sql = new Sql();
+
+	$results = $sql->select("SELECT * FROM tb_persons a INNER JOIN tb_users b USING(idperson) WHERE a.desemail = :EMAIL", array(
+		":EMAIL"=>$email
+	));
+
+	
+	if(count($results) === 0){
+
+		throw new \Exception("E-Mail não cadastrado.");
+
+	}else{
+
+		$data = $results[0];
+
+		$results2 = $sql->select("CALL sp_userspasswordsrecoveries_create(:IDUSER, :DESIP)", array(
+			":IDUSER"=>$data["iduser"],
+			":DESIP"=>$_SERVER["REMOTE_ADDR"]
+		));
+
+		if(count($results2) === 0){
+
+		   throw new \Exception("Não foi possível recuperar a senha");
+
+		}else{
+
+			$dataRecovery = $results2[0];
+
+			$iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+			$code = openssl_encrypt($dataRecovery['idrecovery'], 'aes-256-cbc', User::SECRET, 0, $iv);
+			$result = base64_encode($iv.$code);
+
+			if($inadmin === true){
+
+				$link = "http://www.xesquecommerce.com.br/admin/forgot/reset?code=$result";
+				
+			}else{
+
+				$link = "http://www.xesquecommerce.com.br/forgot/reset?code=$result";
+
+			}
+
+			$mailer = new Mailer($data["desemail"], $data["desperson"], "Redefinir senha", "forgot", array(
+				
+				"name"=>$data["desperson"],
+				"link"=>$link
+
+			));
+
+			$mailer->send();
+
+			return $link;
+		}
+	}
+	
 }
 
 
 
+}
  ?>
