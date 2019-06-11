@@ -10,7 +10,7 @@ class User extends Model {
 	const SESSION = "User";
 	const SECRET = "SidneiLucas_Secret";
 
-//Função de logar
+//Função de validar login
 	public static function login($login, $password){
 
 		$sql = new Sql(); 
@@ -18,17 +18,20 @@ class User extends Model {
 			"LOGIN"=>$login
 		));
 
+		// Estoura uma excessão pelo usuário não existir
 		if(count($results)===0){
-				throw new \Exception("Usuário inexistente ou senha inválida");
+				throw  \Exception("Usuário inexistente ou senha inválida");
 				
 			}
 
+			// Se existe seta os dados na variável $data
 			$data = $results[0];
 
 			if 
 				(password_verify($password, $data["despassword"]) === true){
 				$user = new User();
 				$user->setData($data);
+				// Define uma sessão com o nome do usuário que conseguiu logar
 				$_SESSION[User::SESSION] = $user->getValues();
 				return $user;
 
@@ -37,6 +40,7 @@ class User extends Model {
 
 				 else{
 
+					// Estoura uma excessão pela senha ser inválida
 					throw new \Exception("Usuário inexistente ou senha inválida");
 				 }
 	} 
@@ -165,12 +169,16 @@ public static function getForgot($email, $inadmin = true){
 
 			}
 
-			$mailer = new Mailer($data["desemail"], $data["desperson"], "Redefinir senha", "forgot", array(
-				
-				"name"=>$data["desperson"],
-				"link"=>$link
-
-			));
+			$mailer = new Mailer(
+				$data["desemail"], 
+				$data["desperson"], 
+				"Redefinir senha", 
+				"forgot", 
+					array(
+						"name"=>$data["desperson"],
+						"link"=>$link
+					)
+			);
 
 			$mailer->send();
 
@@ -180,7 +188,54 @@ public static function getForgot($email, $inadmin = true){
 	
 }
 
+public static function validForgotDecryt($result){
+	
+	$result = base64_decode($result);
+    $code = mb_substr($result, openssl_cipher_iv_length('aes-256-cbc'), null, '8bit');
+    $iv = mb_substr($result, 0, openssl_cipher_iv_length('aes-256-cbc'), '8bit');
+    $idrecovery = openssl_decrypt($code, 'aes-256-cbc', User::SECRET, 0, $iv);
+	$sql = new Sql();
+            $results = $sql->select("SELECT *
+                FROM tb_userspasswordsrecoveries a
+                INNER JOIN tb_users b USING(iduser)
+                INNER JOIN tb_persons c USING(idperson)
+                WHERE
+                a.idrecovery = :idrecovery
+                AND
+                a.dtrecovery IS NULL
+                AND
+				DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW();",
+				array(
+					":idrecovery"=>$idrecovery
+				));
 
+		if (count ($results) === 0){
+
+			throw new \Exception("Não foi possível recuperar a senha.");
+			
+		}else {
+
+			return $results[0];
+		}
+}
+
+public static function setForgotUsed($idrecovery){
+	$sql = new Sql();
+	$sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery = :idrecovery", array(
+		":idrecovery"=>$idrecovery
+	));
+}
+
+
+public function setPassword($password){
+
+	$sql = new Sql();
+	$sql->query("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
+		":password"=>$password,
+		":iduser"=>$this->getiduser()
+
+	));
+}
 
 }
  ?>

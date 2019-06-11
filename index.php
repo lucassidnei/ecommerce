@@ -134,7 +134,7 @@ $app->get("/admin/forgot", function(){
 
 });
 
-//Método para recuperação de senha
+// Método para enviar o e-mail para a função que envia o e-mail para o endereço de recuperação
 $app->post("/admin/forgot", function(){
 
 	$user = User::getForgot($_POST["email"]);
@@ -142,7 +142,7 @@ $app->post("/admin/forgot", function(){
 	exit;
 });
 
-//Método de renderização da pagina depois drecuperação
+// Método que renderiza a página com a mensagem de e-mail enviado
 $app->get("/admin/forgot/sent", function(){
 
 	$page = new PageAdmin([
@@ -152,6 +152,50 @@ $app->get("/admin/forgot/sent", function(){
 	$page->setTpl("forgot-sent");
 });
 
+ // Método que válida e encripta o código do e-mail
+ $app->get("/admin/forgot/reset", function(){
+    
+	$user = User::validForgotDecryt($_GET["code"]);
+
+	$page = new PageAdmin([
+		"header"=>false,
+		"footer"=>false
+	]);
+
+	$page->setTpl("forgot-reset", array(
+
+		"name"=>$user["desperson"],
+		"code"=>$_GET["code"]
+
+	));
+});
+
+$app->post("/admin/forgot/reset", function(){
+    
+	$Forgot = User::validForgotDecryt($_POST["code"]);
+
+	User::setForgotUsed($Forgot["idrecovery"]);
+
+	$user = new User();
+
+	$user->get((int)$Forgot["iduser"]);
+
+	$password = password_hash($_POST["password"], PASSWORD_DEFAULT, [
+		"cost"=>12
+	]);
+
+	$user->setPassword($password);
+
+	$page = new PageAdmin([
+
+		"header"=>false,
+		"footer"=>false
+
+	]);
+
+	$page->setTpl("forgot-reset-success");
+
+});
 
 $app->run();
 
