@@ -16,6 +16,11 @@ class Product extends Model {
 		return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
     }
     
+   public static function formatPrice($vlprice){
+
+   }
+
+
   //Função para criar categoria banco de dados
 	public function save(){
 
@@ -62,9 +67,11 @@ class Product extends Model {
         "products" . DIRECTORY_SEPARATOR .
         $this->getidproduct() . ".jpg"
         )) {
+
             return "/res/site/img/products/" . $this->getidproduct() . ".jgp";
         }else{
-            $url = "/res/site/img/products/img-default-products.png";
+
+            $url = "/res/site/img/product.jpg";
         }
         return $this->setdesphoto($url);
     }
@@ -82,8 +89,11 @@ class Product extends Model {
         $extension = end($extension);
         switch ($extension) {
             case "jpg":
+
             case "jpeg":    $image = imagecreatefromjpeg($file['tmp_name']);    break;
+
             case "gif":     $image = imagecreatefromgif($file['tmp_name']);     break;
+
             case "png":     $image = imagecreatefrompng($file['tmp_name']);     break;
         }
         
@@ -93,7 +103,8 @@ class Product extends Model {
             "img" . DIRECTORY_SEPARATOR .
             "products" . DIRECTORY_SEPARATOR .
             $this->getidproduct() . ".jpg";
-        imagejpeg($image, $dist);
+
+         imagejpeg($image, $dist);
         imagedestroy($image);
         $this->checkPhoto();
     }

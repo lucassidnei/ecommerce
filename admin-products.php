@@ -31,7 +31,7 @@
         $product = new Product();
         $product->setData($_POST);
         $product->save();
-        header("Location: /admin/products");
+        header('Location: /admin/products');
         exit;
     });
 
@@ -56,7 +56,7 @@
         $product->setData($_POST);
         $product->save();
         $product->setPhoto($_FILES['file']);
-        header("Location: /admin/products");
+        header('Location: /admin/products');
         exit;
     });
 
