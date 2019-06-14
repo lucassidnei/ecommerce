@@ -16,9 +16,6 @@ class Product extends Model {
 		return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
     }
     
-   public static function formatPrice($vlprice){
-
-   }
 
 
   //Função para criar categoria banco de dados
