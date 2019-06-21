@@ -91,13 +91,10 @@ public static function checkLogin($inadmin = true){
 	public static function verifyLogin($inadmin = true)
 	{
 		if (!User::checkLogin($inadmin)) {
-			if ($inadmin) {
-				header("Location: /admin/login");
-			} else {
-				header("Location: /login");
-			}
+			header("Location: /admin/login");
 			exit;
 		}
+		
 	}
 
 ///Função de deslogin
