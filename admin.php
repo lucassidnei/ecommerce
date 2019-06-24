@@ -5,6 +5,8 @@ use \Hcode\Model\User;
 
 //Página inicial do admin
 $app->get('/admin', function() {
+	
+	User::verifyLogin();
 
 	$page = new PageAdmin();
 	$page->setTpl("index");
