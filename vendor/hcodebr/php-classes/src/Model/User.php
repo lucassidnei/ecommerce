@@ -64,7 +64,8 @@ public static function checkLogin($inadmin = true){
 
 		// Estoura uma excessão pelo usuário não existir
 		if(count($results)===0){
-				throw  \Exception("Usuário inexistente ou senha inválida");
+				
+			throw  new \Exception("Usuário inexistente ou senha inválida");
 				
 			}
 
