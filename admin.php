@@ -74,7 +74,7 @@ $app->get("/admin/forgot/sent", function(){
  // Método que válida e encripta o código do e-mail
  $app->get("/admin/forgot/reset", function(){
     
-	$user = User::validForgotDecryt($_GET["code"]);
+	$user = User::validForgotDecrypt($_GET["code"]);
 
 	$page = new PageAdmin([
 		"header"=>false,
@@ -91,7 +91,7 @@ $app->get("/admin/forgot/sent", function(){
 
 $app->post("/admin/forgot/reset", function(){
     
-	$Forgot = User::validForgotDecryt($_POST["code"]);
+	$Forgot = User::validForgotDecrypt($_POST["code"]);
 
 	User::setForgotUsed($Forgot["idrecovery"]);
 
