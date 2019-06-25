@@ -12,6 +12,7 @@ class User extends Model {
 	const SECRET_IV = "HcodePhp7_Secret_IV";
 	const ERROR = "UserError";
 	const ERROR_REGISTER = "UserErrorRegister";
+	const SUCCESS = "UserSuccess";
 
 
 	// Pega o usuário da sessão
@@ -287,6 +288,23 @@ public static function clearError(){
 public static function setErrorRegister($msg){
 
 	$_SESSION[User::ERROR_REGISTER] = $msg;
+}
+
+public static function setSuccess($msg){
+
+	$_SESSION[User::ERROR] = $msg;
+}
+
+public static function getSuccess(){
+
+	$msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+	User::clearSuccess();
+	return $msg;
+}
+
+public static function clearSuccess(){
+
+	$_SESSION[User::ERROR] = NULL;
 }
 
 public static function getErrorRegister(){
