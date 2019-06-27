@@ -55,13 +55,13 @@ class Product extends Model {
         $this->setData($results[0]);
     }
 
-    public function delete(){
-
-        $sql = new Sql();
-        $sql->query("DELETE FROM tb_products WHERE idproduct = :idproduct", [
-            ":idproduct"=>$this->getidproduct()
-        ]);
-    }
+    public function delete()
+	{
+		$sql = new Sql();
+		$sql->query("DELETE FROM tb_products WHERE idproduct = :idproduct", [
+			':idproduct'=>$this->getidproduct()
+		]);
+	}
 
     public function checkPhoto(){
 
