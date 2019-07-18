@@ -128,13 +128,15 @@ $app->post("/cart/freight", function(){
 $app->get("/checkout", function(){
 
 	User::verifyLogin(false);
-	$address = new Address();
-	$cart = Cart::getFromSession();
 
+	$address = new Address();
+	
+	$cart = Cart::getFromSession();
 	
 	if (!isset($_GET['zipcode'])) {
-	
+
 		$_GET['zipcode'] = $cart->getdeszipcode();
+
 	}
 
 	if (isset($_GET['zipcode'])) {
@@ -219,21 +221,25 @@ $app->post("/checkout", function(){
 	$_POST['idperson'] = $user->getidperson();
 	
 	$address->setData($_POST);
+	
 	$address->save();
+
 	
 	$cart = Cart::getFromSession();
-	$cart->getCalculateTotal();
+	$totals = $cart->getCalculateTotal();
 	
 	$order = new Order();
+
 	$order->setData([
 		'idcart'=>$cart->getidcart(),
 		'idaddress'=>$address->getidaddress(),
 		'iduser'=>$user->getiduser(),
 		'idstatus'=>OrderStatus::EM_ABERTO,
-		'vltotal'=>$cart->getvltotal()
+		'vltotal'=>$totals['vlprice'] + $cart->getvlfreight()
 	]);
-
+	
 	$order->save();
+	
 
 	header("Location: /order/". $order->getidorder());
 	exit;
@@ -441,11 +447,13 @@ $app->get("/order/:idorder", function($idorder){
 	$order = new Order();
 	$order->get((int)$idorder);
 	
+	
 	$page = new Page();
 	$page->setTpl("payment", [
 		'order'=>$order->getValues()
 	]);
 });
+
 
 $app->get("/boleto/:idorder", function ($idorder){
 	
@@ -455,6 +463,7 @@ $app->get("/boleto/:idorder", function ($idorder){
 	$order->get((int)$idorder);
 
 	// DADOS DO BOLETO PARA O SEU CLIENTE
+	
 	$dias_de_prazo_para_pagamento = 10;
 	$taxa_boleto = 5.00;
 	$data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006"; 
@@ -468,37 +477,50 @@ $app->get("/boleto/:idorder", function ($idorder){
 	$dadosboleto["data_documento"] = date("d/m/Y"); // Data de emissão do Boleto
 	$dadosboleto["data_processamento"] = date("d/m/Y"); // Data de processamento do boleto (opcional)
 	$dadosboleto["valor_boleto"] = $valor_boleto; 	// Valor do Boleto - REGRA: Com vírgula e sempre com duas casas depois da virgula
+	
 	// DADOS DO SEU CLIENTE
+
 	$dadosboleto["sacado"] = $order->getdesperson();
 	$dadosboleto["endereco1"] = $order->getdesaddress() . " " . $order->getdesdistrict();
+	
 	$dadosboleto["endereco2"] = $order->getdescity() . " - " . $order->getdesstate() . " - " . $order->getdescountry() . " -  CEP: " . $order->getdeszipcode();
 	// INFORMACOES PARA O CLIENTE
-	$dadosboleto["demonstrativo1"] = "Pagamento de Compra na Loja Hcode E-commerce";
+	
+	$dadosboleto["demonstrativo1"] = "Pagamento de Compra na Loja Sidnei Store";
 	$dadosboleto["demonstrativo2"] = "Taxa bancária - R$ 0,00";
 	$dadosboleto["demonstrativo3"] = "";
 	$dadosboleto["instrucoes1"] = "- Sr. Caixa, cobrar multa de 2% após o vencimento";
 	$dadosboleto["instrucoes2"] = "- Receber até 10 dias após o vencimento";
-	$dadosboleto["instrucoes3"] = "- Em caso de dúvidas entre em contato conosco: suporte@hcode.com.br";
-	$dadosboleto["instrucoes4"] = "&nbsp; Emitido pelo sistema Projeto Loja Hcode E-commerce - www.hcode.com.br";
+	$dadosboleto["instrucoes3"] = "- Em caso de dúvidas entre em contato conosco: nerrosidnei@gmail.com";
+	$dadosboleto["instrucoes4"] = "&nbsp; Emitido pelo sistema Projeto Loja Sidnei Store - www.xesquecommerce.com.br";
+	
 	// DADOS OPCIONAIS DE ACORDO COM O BANCO OU CLIENTE
+	
 	$dadosboleto["quantidade"] = "";
 	$dadosboleto["valor_unitario"] = "";
 	$dadosboleto["aceite"] = "";		
 	$dadosboleto["especie"] = "R$";
 	$dadosboleto["especie_doc"] = "";
+	
 	// ---------------------- DADOS FIXOS DE CONFIGURAÇÃO DO SEU BOLETO --------------- //
 	// DADOS DA SUA CONTA - ITAÚ
+	
 	$dadosboleto["agencia"] = "1690"; // Num da agencia, sem digito
 	$dadosboleto["conta"] = "48781";	// Num da conta, sem digito
 	$dadosboleto["conta_dv"] = "2"; 	// Digito do Num da conta
+	
 	// DADOS PERSONALIZADOS - ITAÚ
+	
 	$dadosboleto["carteira"] = "175";  // Código da Carteira: pode ser 175, 174, 104, 109, 178, ou 157
+	
 	// SEUS DADOS
-	$dadosboleto["identificacao"] = "Hcode Treinamentos";
-	$dadosboleto["cpf_cnpj"] = "24.700.731/0001-08";
-	$dadosboleto["endereco"] = "Rua Ademar Saraiva Leão, 234 - Alvarenga, 09853-120";
-	$dadosboleto["cidade_uf"] = "São Bernardo do Campo - SP";
-	$dadosboleto["cedente"] = "HCODE TREINAMENTOS LTDA - ME";
+	
+	$dadosboleto["identificacao"] = "Lucas Sidnie";
+	$dadosboleto["cpf_cnpj"] = "047685011-84";
+	$dadosboleto["endereco"] = "Praça Santana, 422 - Centro,75400000";
+	$dadosboleto["cidade_uf"] = "Inhumas - Goias";
+	$dadosboleto["cedente"] = "Sidnei Store!";
+	
 	// NÃO ALTERAR!
 
 	$path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "boletophp" . DIRECTORY_SEPARATOR . "include" . DIRECTORY_SEPARATOR;
@@ -507,3 +529,5 @@ $app->get("/boleto/:idorder", function ($idorder){
 
 
 });
+
+?>
