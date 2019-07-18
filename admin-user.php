@@ -14,6 +14,7 @@ $app->get("/admin/users", function(){
 ));
 });
 
+
 // Método que renderiza o html da página users-create
 $app->get("/admin/user/create", function(){
 

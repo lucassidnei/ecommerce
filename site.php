@@ -519,7 +519,7 @@ $app->get("/boleto/:idorder", function ($idorder){
 	$dadosboleto["cpf_cnpj"] = "047685011-84";
 	$dadosboleto["endereco"] = "Praça Santana, 422 - Centro,75400000";
 	$dadosboleto["cidade_uf"] = "Inhumas - Goias";
-	$dadosboleto["cedente"] = "Sidnei Store!";
+	$dadosboleto["cedente"] = "SidneiStorie";
 	
 	// NÃO ALTERAR!
 

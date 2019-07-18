@@ -21,4 +21,9 @@ function getUserName(){
 	return $user->getdesperson();
 }
 
-?>
+function getdatareg(){
+	$user = User::getFromSession();
+
+	return $user->getdtregister();
+}
+
