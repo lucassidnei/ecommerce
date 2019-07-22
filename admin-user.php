@@ -25,8 +25,8 @@ $app->get("/admin/user/create", function(){
 });
 
 //Método que renderiz o html da pagina delete
-$app->get("/admin/user/:iduser/delete", function($iduser){
 
+$app->get("/admin/user/:iduser/delete", function($iduser){
 	User::verifyLogin();
 	$user = new User();
 	$user->get((int)$iduser);
